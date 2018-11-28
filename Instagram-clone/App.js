@@ -4,36 +4,35 @@ import { f, auth, database } from './config/config.js';
 
 export default class App extends React.Component {
 
-constructor(props)
-{
-  super(props);
-  // this.registerUser('testemailadress2@helloworld.com', 'repelsteeltje');
+  constructor(props) {
+    super(props);
+    // this.registerUser('testemailadress2@helloworld.com', 'repelsteeltje');
 
-  auth.signOut()
-  .then(() => {
-    console.log('Logged out...');
-  }).catch((error) => {
-    console.log('Error:', error);
-  })
+    auth.signOut()
+      .then(() => {
+        console.log('Logged out...');
+      }).catch((error) => {
+        console.log('Error:', error);
+      })
 
-  // f.auth().onAuthStateChanged(function(user) {
-  //   if(user){
-  //     //Logged in
-  //     console.log("logged in");
-  //   }else{
-  //     //Logged out
-  //     console.log("Logged out");
-  //   }
-  // })
-}
-  
-registerUser = (email, password) => {
-  console.log(email, password);
-  auth.createUserWithEmailAndPassword(email, password)
-  .then((user) => console.log(email, password, user))
-  .catch((error) => console.log("error logging in"))
+    // f.auth().onAuthStateChanged(function(user) {
+    //   if(user){
+    //     //Logged in
+    //     console.log("logged in");
+    //   }else{
+    //     //Logged out
+    //     console.log("Logged out");
+    //   }
+    // })
+  }
 
-}
+  registerUser = (email, password) => {
+    console.log(email, password);
+    auth.createUserWithEmailAndPassword(email, password)
+      .then((user) => console.log(email, password, user))
+      .catch((error) => console.log("error logging in"))
+
+  }
 
 
   render() {
