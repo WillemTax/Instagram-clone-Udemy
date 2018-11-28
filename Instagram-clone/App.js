@@ -1,45 +1,66 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { f, auth, database } from './config/config.js';
+import { StyleSheet, Text, View, TouchableHighlight } from 'react-native';
+import { f, auth, database, facebookAppID } from './config/config.js';
 
 export default class App extends React.Component {
 
-constructor(props)
-{
-  super(props);
-  // this.registerUser('testemailadress2@helloworld.com', 'repelsteeltje');
+  constructor(props) {
+    super(props);
+    // this.registerUser('testemailadress2@helloworld.com', 'repelsteeltje');
+    f.auth().onAuthStateChanged(function(user) {
+      if(user){
+        //Logged in
+        console.log("logged in", user);
+      }else{
+        //Logged out
+        console.log("Logged out!!");
+      }
+    });
+  }
 
-  auth.signOut()
-  .then(() => {
-    console.log('Logged out...');
-  }).catch((error) => {
-    console.log('Error:', error);
-  })
+  async loginWithFacebook () {
 
-  // f.auth().onAuthStateChanged(function(user) {
-  //   if(user){
-  //     //Logged in
-  //     console.log("logged in");
-  //   }else{
-  //     //Logged out
-  //     console.log("Logged out");
-  //   }
+    const { type, token } = await Expo.Facebook.logInWithReadPermissionsAsync(
+      facebookAppID,
+      { permissions: ['email', 'public_profile'] }
+    );
+
+    if(type === 'success'){
+      const credentials = f.auth.FacebookAuthProvider.credential(token);
+      f.auth().signInAndRetrieveDataWithCredential(credentials).catch((error) => {
+        console.log('Oeps, something went wrong login in', error);
+      // f.auth().signInWithCredential(credentials).catch((error) => {
+      //   console.log('Oeps, something went wrong login in', error);
+      })
+    }else{
+      console.log('no succes');
+    }
+  }
+
+  registerUser = (email, password) => {
+
+    console.log(email, password);
+    auth.createUserWithEmailAndPassword(email, password)
+      .then((user) => console.log(email, password, user))
+      .catch((error) => console.log("error logging in"));
+
+  }
+  // auth.signOut()
+  // .then(() => {
+  //   console.log('Logged out...');
+  // }).catch((error) => {
+  //   console.log('Error:', error);
   // })
-}
-  
-registerUser = (email, password) => {
-  console.log(email, password);
-  auth.createUserWithEmailAndPassword(email, password)
-  .then((user) => console.log(email, password, user))
-  .catch((error) => console.log("error logging in"))
-
-}
-
 
   render() {
     return (
       <View style={styles.container}>
         <Text>Open up App.js to start working on your app(s)!!</Text>
+        <TouchableHighlight 
+        onPress={() => this.loginWithFacebook()}
+        style={{backgroundColor:'blue'}}>
+          <Text style={{color:'white'}}>Login with Facebook</Text>
+        </TouchableHighlight>
       </View>
     );
   }
