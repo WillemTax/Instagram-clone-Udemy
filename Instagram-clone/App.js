@@ -1,27 +1,47 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableHighlight } from 'react-native';
+import { StyleSheet, Text, View, TouchableHighlight, TextInput } from 'react-native';
 import { f, auth, database, facebookAppID } from './config/config.js';
 
 export default class App extends React.Component {
 
   constructor(props) {
     super(props);
-    // this.registerUser('testemailadress2@helloworld.com', 'repelsteeltje');
-
+    this.state = {
+      loggedI: false
+    };
+    // this.registerUser('wj.v.dun@gmail.com', '123');
+    var that = this;
     f.auth().onAuthStateChanged(function (user) {
       if (user) {
         //Logged in
+        that.setState(
+          { loggedIn: true })
         console.log("logged in", user);
       } else {
         //Logged out
+        that.setState(
+          { loggedIn: false })
         console.log("Logged out!!");
       }
     });
   }
 
-  async loginWithFacebook() {
+  loginUser = async (email, pass) => {
+    if (email != '' && pass != '') {
+      //
+      try {
+        let user = await auth.signInWithEmailAndPassword(email, pass);
+        console.log(user);
+      } catch (error) {
+        console.log(error);
+      }
+    } else {
+      alert('Missing email or password');
+    }
+  }
 
-    const { type, token } = await Expo.Facebook.logInWithReadPermissionsAsync(
+  async loginWithFacebook() {
+   const { type, token } = await Expo.Facebook.logInWithReadPermissionsAsync(
       facebookAppID,
       { permissions: ['email', 'public_profile'] }
     );
@@ -45,22 +65,74 @@ export default class App extends React.Component {
       .catch((error) => console.log("error logging in"));
 
   }
-  // auth.signOut()
-  // .then(() => {
-  //   console.log('Logged out...');
-  // }).catch((error) => {
-  //   console.log('Error:', error);
-  // })
+
+  signUserOut = () => {
+    auth.signOut()
+      .then(() => {
+        console.log('Logged out...');
+      }).catch((error) => {
+        console.log('Error:', error);
+      })
+  }
+
 
   render() {
     return (
       <View style={styles.container}>
-        <Text>Open up App.js to start working on your app(s)!!</Text>
-        <TouchableHighlight
-          onPress={() => this.loginWithFacebook()}
-          style={{ backgroundColor: 'blue' }}>
-          <Text style={{ color: 'white' }}>Login with Facebook</Text>
-        </TouchableHighlight>
+        <Text style={{ color: 'white' }}>Welcome to Willem's first app!!</Text>
+        {this.state.loggedIn == true ? (
+          <View>
+            <TouchableHighlight
+              onPress={() => this.signUserOut()}
+              style={{ backgroundColor:'red'}}>
+              <Text>Log out</Text>
+            </TouchableHighlight>
+            <Text style={{ color:'#e15c55'}}>You are logged in now!</Text>
+          </View>
+        ) : (
+            <View>
+              { this.state.emailLoginView == true ? (
+                
+                <View>
+                  <TextInput
+                  placeholder={'emailadres'}
+                  style={{backgroundColor:'#aaaaaa'}}
+                  onChangeText={(text) => this.setState({email: text})}
+                  value={this.state.email}
+                  />
+
+                  <TextInput
+                  placeholder={'password'}
+                  style={{backgroundColor:'#aaaaaa'}}
+                  onChangeText={(text) => this.setState({pass: text})}
+                  secureTextEntry={true}
+                  value={this.state.pass}
+                  />
+
+                  <TouchableHighlight
+              onPress={() => this.loginUser(this.state.email, this.state.pass)}
+              style={{ backgroundColor:'red'}}>
+              <Text>Login</Text>
+            </TouchableHighlight>
+                  </View>
+              ) : (
+                <View></View>
+              )}
+                  
+              <TouchableHighlight
+                onPress={() => this.setState({ emailLoginView: true })}
+                style={{ backgroundColor: '#6b5998' }}>
+                <Text style={{ color: 'white' }}>Login with Email</Text>
+              </TouchableHighlight>
+
+              <TouchableHighlight
+                onPress={() => this.loginWithFacebook()}
+                style={{ backgroundColor: '#3b5998' }}>
+                <Text style={{ color: 'white' }}>Login with Facebook</Text>
+              </TouchableHighlight>
+            </View>
+          )}
+
       </View>
     );
   }
@@ -70,7 +142,7 @@ export default class App extends React.Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#d3d3d3',
     alignItems: 'center',
     justifyContent: 'center',
   },
